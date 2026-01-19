@@ -44,29 +44,19 @@ public class Root
     public Forecast[] forecasts;
 }
 
-public class RequestWeatherData
+public class WeatherApiService
 {
-    public async UniTaskVoid Request(string url,CancellationTokenSource cts)
+    public async UniTask<Root> Request(string url,CancellationToken token)
     {
-        CancellationToken token = cts.Token;
         UnityWebRequest webRequest = UnityWebRequest.Get(url);
         await webRequest.SendWebRequest().ToUniTask(cancellationToken: token);
 
         if (webRequest.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
         {
-            Debug.LogError($"Error: {webRequest.error}");
-            return;
+            throw new Exception(webRequest.error);
         }
         
-        Root weatherDataBase = JsonUtility.FromJson<Root>(webRequest.downloadHandler.text);
-
-        if (weatherDataBase is { forecasts: not null })
-        {
-            for (int i = 0; i < weatherDataBase.forecasts.Length && i < 3; i++)
-            {
-                Forecast forecast = weatherDataBase.forecasts[i];
-            }
-        }
+        return JsonUtility.FromJson<Root>(webRequest.downloadHandler.text);
     }
 
     public async UniTask<Sprite> LoadImage(string imageUrl, CancellationToken token)
@@ -82,8 +72,7 @@ public class RequestWeatherData
 
         if (webRequest.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
         {
-            Debug.LogError($"Error: {webRequest.error}");
-            return null;
+            throw new Exception(webRequest.error);
         }
         Texture2D texture = DownloadHandlerTexture.GetContent(webRequest);
         

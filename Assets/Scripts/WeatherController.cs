@@ -10,6 +10,7 @@ public class WeatherController : MonoBehaviour
     private PrefScrollView _prefScrollView;
     
     private WeatherXmlLoader _weatherXmlLoader;
+    private CityInfo _selectedCity;
     private List<PrefInfo> _cityIDList = new();
     private void Awake()
     {
@@ -25,10 +26,22 @@ public class WeatherController : MonoBehaviour
     {
         await GetCityIDList();
         _prefScrollView.SetUpPrefPanel(_cityIDList);
+        _prefScrollView.OnCityClicked += OnCitySelected;
     }
 
     private async UniTask GetCityIDList()
     {
         _cityIDList = await _weatherXmlLoader.LoadXmlAsync(_url);
+    }
+
+    private void OnCitySelected(CityInfo cityInfo)
+    {
+        _selectedCity = cityInfo;
+        // ここに取得実装
+    }
+
+    private void OnDestroy()
+    {
+        _prefScrollView.OnCityClicked -= OnCitySelected;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
@@ -24,6 +25,8 @@ public class PrefScrollView : MonoBehaviour
 
     private List<PrefInfo> _prefList = new();
     private Stack<RectTransform> _contents = new();
+
+    public event Action<CityInfo> OnCityClicked;
 
     private void Start()
     {
@@ -62,14 +65,14 @@ public class PrefScrollView : MonoBehaviour
 
     private void OnCitySelected(CityInfo cityInfo)
     {
-        
+        OnCityClicked?.Invoke(cityInfo);
     }
 
     // Pageをスライドする
     private void SlideToPage()
     {
         float pageWidth = 1080f;
-        Vector2 targetPos = new (-pageWidth * 2,0);
+        Vector2 targetPos = new (-pageWidth,0);
         _scrollRect.content.DOAnchorPos(targetPos, 0.5f).SetEase(Ease.OutCubic);
     }
 
@@ -86,6 +89,7 @@ public class PrefScrollView : MonoBehaviour
             GameObject prefPanel = Instantiate(_cityPanelButton.gameObject, obj.transform); 
             CityPanelView prefPanelView = prefPanel.GetComponent<CityPanelView>(); 
             prefPanelView.SetUpCityButton(cityInfo);
+            prefPanelView.OnClicked += OnCitySelected;
         }
     }
 
@@ -93,8 +97,7 @@ public class PrefScrollView : MonoBehaviour
     private void GoBack()
     {
         if (_contents.Count <= 1) return;
-
-        _backButton.gameObject.SetActive(false);
+        
         RectTransform current = _contents.Pop();
         RectTransform previous = _contents.Peek();
 
@@ -104,15 +107,17 @@ public class PrefScrollView : MonoBehaviour
         previous.gameObject.SetActive(true);
         previous.anchoredPosition = new Vector2(-pageWidth, 0);
 
-        _scrollRect.content = previous;
+        _scrollRect.enabled = false;
 
         Sequence seq = DOTween.Sequence();
-
-        seq.Join(current.DOAnchorPos(new Vector2(pageWidth, 0), 0.5f).SetEase(Ease.OutCubic));
-        seq.Join(previous.DOAnchorPos(Vector2.zero, 0.5f).SetEase(Ease.OutCubic))
-            .OnComplete(() =>
+        seq.Join(current.DOAnchorPos(new Vector2(pageWidth, 0), 0.5f));
+        seq.Join(previous.DOAnchorPos(Vector2.zero, 0.5f));
+            seq.OnComplete(() =>
             {
                 Destroy(current.gameObject);
+                _scrollRect.content = previous;
+                _scrollRect.enabled = true;
+                _backButton.gameObject.SetActive(_contents.Count > 1);
             });
     }
 }

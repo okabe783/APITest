@@ -8,6 +8,19 @@ namespace WeatherApp.Loader
     // Jsonで取得したデータを変換する
     public class WeatherDataConverter
     {
+        public CurrentForecastData ConvertToCurrent(Root root, Sprite icon, string cityName)
+        {
+            Forecast today = root.forecasts[0];
+
+            return new CurrentForecastData
+            {
+                CityName = cityName,
+                WeatherIcon = icon,
+                Temperature = today.temperature.max?.celsius,
+                Telop = today.telop
+            };
+        }
+        
         /// <summary>
         /// 今日明日明後日のデータを格納する
         /// </summary>

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using WeatherApp.Interface;
 
 // 1日分の予報（UI表示用）
 public class DailyForecastData
@@ -24,7 +25,7 @@ namespace WeatherApp.View
     /// <summary>
     /// 今日、明日、明後日の天気のパネル
     /// </summary>
-    public class DailyForecastItem : MonoBehaviour
+    public class DailyForecastItem : MonoBehaviour,IForecastItem<DailyForecastData>
     {
         [SerializeField]
         private Text _date;
@@ -34,8 +35,7 @@ namespace WeatherApp.View
         private Text _temperature;
         [SerializeField] 
         private Text _chanceOfRain;
-
-        // ToDo : あとでInterfaceに
+        
         public void SetItemUI(DailyForecastData data)
         {
             _date.text = data.Date;

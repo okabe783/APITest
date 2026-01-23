@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using WeatherApp.Interface;
 
 // 時間別予報図のデータ　// 不変ではないのでClass
 public class HourlyForecastsData
@@ -12,7 +13,7 @@ public class HourlyForecastsData
 
 namespace WeatherApp.View
 {
-    public class HourlyForecastItem : MonoBehaviour
+    public class HourlyForecastItem : MonoBehaviour,IForecastItem<HourlyForecastsData>
     {
         [Header("UI Elements")]
         [SerializeField]
